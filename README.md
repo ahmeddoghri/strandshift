@@ -4,6 +4,8 @@
 
 Audit sequence classifiers across reverse complements and shifted windows before trusting variant-effect scores.
 
+![strandshift cover](demo/cover.png)
+
 ![strandshift workbench](demo/dashboard.png)
 
 ## Why this exists
