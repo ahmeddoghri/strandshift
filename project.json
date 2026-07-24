@@ -1,0 +1,11 @@
+{
+  "name": "strandshift",
+  "tagline": "Genomic sequence-model invariance auditor",
+  "headline": "A base change is biology. A window shift is not.",
+  "summary": "Audit sequence classifiers across reverse complements and shifted windows before trusting variant-effect scores.",
+  "accent": "#65e6a7",
+  "topics": "genomics,foundation-models,dna,reverse-complement,model-evaluation,bioinformatics",
+  "sources": [
+    ["Nucleotide Transformer", "https://www.nature.com/articles/s41592-024-02523-z"]
+  ]
+}

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>strandshift</title>
+  <style>
+    :root{color-scheme:dark;--bg:#070a09;--panel:#0c1210;--line:#24322d;--text:#edf5f1;--muted:#8fa39a;--accent:#65e6a7;--bad:#ff7d78}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:0}header{height:64px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 max(20px,calc((100vw - 1180px)/2))}h1{font-size:17px;margin:0}.status{color:var(--accent)}main{max-width:1180px;margin:auto;padding:34px 24px 56px}.intro{display:grid;grid-template-columns:1.15fr .85fr;gap:42px;align-items:end;margin-bottom:28px}h2{font:650 38px/1.08 system-ui,sans-serif;margin:0}.intro p{color:var(--muted);margin:0}.grid{display:grid;grid-template-columns:1.35fr .65fr;border:1px solid var(--line);min-height:560px}.visual{padding:22px;border-right:1px solid var(--line)}.side{padding:22px}.label{color:var(--muted);font-size:11px;text-transform:uppercase;margin-bottom:12px}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}.metric{background:var(--panel);border:1px solid var(--line);padding:13px}.metric strong{display:block;font:650 24px/1.2 system-ui,sans-serif}.metric span{color:var(--muted);font-size:10px;text-transform:uppercase}canvas{display:block;width:100%;height:330px;background:#050806;border:1px solid var(--line)}textarea{width:100%;height:390px;resize:none;border:1px solid var(--line);background:#050806;color:var(--text);padding:13px;font:12px/1.5 inherit}textarea:focus{outline:1px solid var(--accent)}button{height:42px;margin-top:14px;border:0;padding:0 18px;background:var(--accent);color:#07100d;font:700 13px inherit;cursor:pointer}.verdict{margin-top:14px;color:var(--bad)}@media(max-width:800px){main{padding:24px 16px}.intro{grid-template-columns:1fr;gap:12px}h2{font-size:30px}.grid{grid-template-columns:1fr}.visual{border-right:0;border-bottom:1px solid var(--line)}.metrics{grid-template-columns:1fr}textarea{height:300px}header{padding:0 16px}}
+  </style>
+</head>
+<body>
+  <header><h1>strandshift / invariance audit</h1><span class="status">local analysis</span></header>
+  <main>
+    <section class="intro"><h2>A base change is biology. A window shift is not.</h2><p>Stress-test the same DNA under reverse complements and signed window shifts before trusting a sequence-model score.</p></section>
+    <section class="grid">
+      <div class="visual">
+        <div class="label">Prediction stability across transformations</div>
+        <div class="metrics"><div class="metric"><strong id="spread">-</strong><span>score range</span></div><div class="metric"><strong id="consensus">-</strong><span>consensus</span></div><div class="metric"><strong id="transforms">-</strong><span>transforms</span></div></div>
+        <canvas id="chart" width="760" height="330" aria-label="Transformation prediction chart"></canvas>
+        <div id="verdict" class="verdict"></div>
+      </div>
+      <div class="side"><div class="label">Audit input</div><textarea id="input"></textarea><button id="run">Run invariance audit</button></div>
+    </section>
+  </main>
+  <script>
+    const input=document.querySelector('#input'),canvas=document.querySelector('#chart'),ctx=canvas.getContext('2d');
+    function draw(data){const items=data.predictions,w=canvas.width,h=canvas.height,pad=34,bar=(w-pad*2)/items.length;ctx.clearRect(0,0,w,h);ctx.strokeStyle='#24322d';ctx.beginPath();ctx.moveTo(pad,h-pad);ctx.lineTo(w-pad,h-pad);ctx.stroke();items.forEach((item,i)=>{const value=item.score;const x=pad+i*bar+2,y=h-pad-value*(h-pad*2);ctx.fillStyle=item.strand==='forward'?'#65e6a7':'#7eb8ff';ctx.fillRect(x,y,Math.max(3,bar-4),h-pad-y);ctx.save();ctx.translate(x+bar/2,h-8);ctx.rotate(-.65);ctx.fillStyle='#8fa39a';ctx.font='10px monospace';ctx.fillText((item.strand==='forward'?'F':'RC')+(item.shift>=0?'+':'')+item.shift,0,0);ctx.restore()});document.querySelector('#spread').textContent=data.prediction_range.toFixed(3);document.querySelector('#consensus').textContent=data.invariant_consensus.toFixed(3);document.querySelector('#transforms').textContent=data.transform_count;document.querySelector('#verdict').textContent=data.audit_passed?'PASS: predictions stay inside the invariance budget.':'FAIL: model output changes under biologically equivalent views.'}
+    async function demo(){const data=await fetch('/api/demo').then(r=>r.json());input.value=JSON.stringify(data.input,null,2);draw(data.result)}
+    async function run(){const response=await fetch('/api/analyze',{method:'POST',headers:{'content-type':'application/json'},body:input.value});const data=await response.json();if(data.error){document.querySelector('#verdict').textContent=data.error;return}draw(data)}
+    document.querySelector('#run').onclick=run;demo();
+  </script>
+</body>
+</html>

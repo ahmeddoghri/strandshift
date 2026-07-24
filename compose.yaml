@@ -1,0 +1,5 @@
+services:
+  strandshift:
+    build: .
+    ports:
+      - "8090:8090"
