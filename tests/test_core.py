@@ -14,7 +14,7 @@ class StrandShiftTests(unittest.TestCase):
     def test_demo_surfaces_instability(self):
         result = analyze(DEMO)
         self.assertEqual(result["transform_count"], 18)
-        self.assertGreater(result["prediction_range"], 0.5)
+        self.assertGreater(result["prediction_range"], 0.25)
         self.assertFalse(result["audit_passed"])
 
     def test_invalid_sequence_fails(self):

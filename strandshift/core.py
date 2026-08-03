@@ -58,14 +58,25 @@ def analyze(payload: dict) -> dict:
         raise ValueError("position_bias must be between 0 and 1")
 
     predictions = []
-    for strand, oriented in (("forward", sequence), ("reverse_complement", reverse_complement(sequence))):
+    # On the reverse-complement strand, the SAME underlying biological motif
+    # appears as its reverse complement, not as the original motif string --
+    # reverse-complementing a sequence reverse-complements every substring
+    # inside it, including the motif occurrence. Scoring the RC'd sequence
+    # against the un-RC'd motif checks whether the literal forward-strand
+    # spelling happens to reappear (it structurally can't, except by chance),
+    # which isn't a test of strand invariance at all -- it manufactures a
+    # near-guaranteed "failure" on every reverse-complement transform.
+    for strand, oriented, oriented_motif in (
+        ("forward", sequence, motif),
+        ("reverse_complement", reverse_complement(sequence), reverse_complement(motif)),
+    ):
         for shift in range(-max_shift, max_shift + 1):
             transformed = shift_window(oriented, shift)
             predictions.append(
                 {
                     "strand": strand,
                     "shift": shift,
-                    "score": round(demo_model(transformed, motif, position_bias), 4),
+                    "score": round(demo_model(transformed, oriented_motif, position_bias), 4),
                 }
             )
 
