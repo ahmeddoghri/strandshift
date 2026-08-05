@@ -16,7 +16,7 @@ DNA foundation models are increasingly used for sequence classification and vari
 
 - Forward, reverse-complement, and signed window-shift transforms
 - Transparent proxy model plus a stable JSON audit contract for external predictions
-- CLI, JSON API, responsive local workbench, Docker image, tests, and CI
+- CLI, JSON API, responsive local workbench, Docker image, tests
 - No API keys and no sequence uploads
 
 ## Run it end to end
