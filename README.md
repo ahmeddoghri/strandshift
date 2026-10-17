@@ -1,5 +1,7 @@
 # strandshift
 
+[![tests](https://github.com/ahmeddoghri/strandshift/actions/workflows/tests.yml/badge.svg)](https://github.com/ahmeddoghri/strandshift/actions/workflows/tests.yml) [![case study](https://img.shields.io/badge/case%20study-adoghri.com-e0703e)](https://adoghri.com/project-55.html)
+
 **Genomic sequence-model invariance auditor.**
 
 Audit sequence classifiers across reverse complements and shifted windows before trusting variant-effect scores.
