@@ -82,6 +82,34 @@ brittleness that the bug fix doesn't touch. `tests/test_reverse_complement_motif
 covers the corrected RC scoring directly, and the pre-existing instability
 test's threshold was updated to the corrected, honest number.
 
+## Auditing your own model, and proving the audit is specific
+
+`analyze` takes the predictor to audit. It defaults to the bundled
+position-sensitive demo model, which exists to fail:
+
+```python
+from strandshift.core import DEMO, analyze
+
+def my_model(sequence: str, motif: str) -> float:
+    ...   # the motif arrives already oriented for the strand under test
+
+analyze(DEMO, model=my_model)["audit_passed"]
+```
+
+An audit that fails everything is not an audit, so the suite checks both
+directions:
+
+| predictor | prediction range | audit |
+| --- | ---: | --- |
+| best match anywhere in the window (truly invariant) | 0.0000 | **passes** |
+| bundled demo model, `position_bias=0.0` | 0.0000 | **passes** |
+| bundled demo model, `position_bias=0.9` (the demo) | 0.3273 | fails |
+| scores the left edge only | large | fails |
+
+The demo's remaining failure is its deliberate position sensitivity, which
+is a genuine and separate source of brittleness from the reverse-complement
+bug fixed below.
+
 ## Research basis
 
 - [Nucleotide Transformer: building and evaluating robust foundation models for human genomics](https://www.nature.com/articles/s41592-024-02523-z)

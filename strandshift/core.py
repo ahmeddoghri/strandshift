@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from statistics import mean, pstdev
+from typing import Callable
 
 
 COMPLEMENT = str.maketrans("ACGTNacgtn", "TGCANtgcan")
@@ -43,7 +44,13 @@ def demo_model(sequence: str, motif: str, position_bias: float) -> float:
     return max(scores)
 
 
-def analyze(payload: dict) -> dict:
+def analyze(payload: dict, model: Callable[[str, str], float] | None = None) -> dict:
+    """Audit a predictor for strand and shift invariance.
+
+    `model` takes an oriented sequence and the correspondingly oriented motif
+    and returns a score. It defaults to the bundled position-sensitive demo
+    model, which exists to fail the audit; pass your own to audit your own.
+    """
     sequence = str(payload["sequence"]).upper()
     motif = str(payload["motif"]).upper()
     max_shift = int(payload.get("max_shift", 3))
@@ -76,7 +83,12 @@ def analyze(payload: dict) -> dict:
                 {
                     "strand": strand,
                     "shift": shift,
-                    "score": round(demo_model(transformed, oriented_motif, position_bias), 4),
+                    "score": round(
+                        model(transformed, oriented_motif)
+                        if model is not None
+                        else demo_model(transformed, oriented_motif, position_bias),
+                        4,
+                    ),
                 }
             )
 
